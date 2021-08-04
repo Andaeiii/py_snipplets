@@ -1,5 +1,13 @@
 import os  # to handles the files
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, redirect
+
+
+from werkzeug.utils import secure_filename
+from time import sleep
+from flask import copy_current_request_context
+import threading  # for large files...
+import datetime
+
 
 __author__ = 'Andaeiii'
 
@@ -13,6 +21,8 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 def index():
     return render_template('upload.html')
 
+
+# for simple file upload...
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -35,6 +45,12 @@ def upload():
         file.save(destination)
 
     return render_template('complete.html')
+
+
+# for large file upload...
+@app.route('/upload_large', methods=['POST'])
+def uploadLargeFiles():
+    pass
 
 
 if __name__ == '__main__':  # to ensure that the app is run on its own.
