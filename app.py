@@ -1,4 +1,5 @@
 import os  # to handles the files
+import hashlib  # to hashstrings...
 from flask import Flask, render_template, url_for, request, redirect
 
 
@@ -21,6 +22,13 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 def index():
     return render_template('upload.html')
 
+# helper functions new filenames...
+
+
+def mkFileName(filename):
+    # string..encode('utf-8') - encoded before hashing...
+    return str(datetime.datetime.now().timestamp()) + '_' + filename
+
 
 # for simple file upload...
 
@@ -37,7 +45,7 @@ def upload():
 
     for file in filesArray:
         print(file)
-        filename = file.filename
+        filename = mkFileName(file.filename)
 
         destination = '/'.join([target, filename])
         print(destination)
@@ -48,9 +56,33 @@ def upload():
 
 
 # for large file upload...
-@app.route('/upload_large', methods=['POST'])
+@app.route('/upload_large', methods=['POST', 'GET'])
 def uploadLargeFiles():
-    pass
+    @copy_current_request_context
+    def save_file(closeAfterWrite):
+        print(datetime.datetime.now().strftime(
+            '%Y-%m-%d %H:%M:%S') + " i am doing")
+        f = request.files['vidfile']
+        basepath = os.path.dirname(__file__)
+        upload_path = os.path.join(
+            basepath, 'images/', secure_filename(mkFileName(f.filename)))
+        f.save(upload_path)
+        closeAfterWrite()
+        print(datetime.datetime.now().strftime(
+            '%Y-%m-%d %H:%M:%S') + " write done")
+
+    def passExit():
+        pass
+
+    if request.method == 'POST':
+        f = request.files['vidfile']
+        normalExit = f.stream.close
+        f.stream.close = passExit
+        t = threading.Thread(target=save_file, args=(normalExit,))
+        t.start()
+        return redirect(url_for('uploadLargeFiles'))
+
+    return render_template('complete.html')
 
 
 if __name__ == '__main__':  # to ensure that the app is run on its own.

@@ -30,19 +30,13 @@
     <h1>Large File Uploader....</h1>
 
     <form
-      action="{{url_for('upload')}}"
+      action="{{url_for('uploadLargeFiles')}}"
       id="id"
       method="POST"
       enctype="multipart/form-data"
     >
-      <input
-        type="file"
-        name="imgfile"
-        id=""
-        accept="image/*;video/*"
-        multiple
-      />
-      <button type="submit">Send Images</button>
+      <input type="file" name="vidfile" id="" accept="video/*" multiple />
+      <button type="submit">Send Video</button>
     </form>
   </body>
 </html>
